@@ -6,6 +6,9 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { Env } from "./config/env.config";
 import { UnauthorizedException } from "./utils/app-error";
 import { asyncHandler } from "./middlewares/asyncHandler.middleware";
+import { logger } from "./utils/logger";
+
+import { connectDatabase, disconnectDatabase } from "./config/database.config";
 
 const app = express();
 const BASE_PATH = Env.BASE_PATH;
@@ -39,28 +42,31 @@ app.use(errorHandler);
 
 async function startServer() {
   try {
+    await connectDatabase();
     const server = app.listen(Env.PORT, () => {
-      console.log(`Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode`);
+      logger.info(`Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode`);
     });
 
     const shutdownSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGQUIT"];
     shutdownSignals.forEach(signal => {
       process.on(signal, async () => {
-        console.log(`Received ${signal}, shutting down gracefully...`);
+        logger.info(`Received ${signal}, shutting down gracefully...`);
 
         try {
           server.close(() => {
-            console.log("Server closed successfully.");
-            process.exit(0);
+            logger.info("Server closed successfully.");
           });
+          await disconnectDatabase();
+          process.exit(0);
+
         } catch (error) {
-          console.error("Error occurred while closing server:", error);
+          logger.error("Error occurred while closing server:", error);
           process.exit(1);
         }
       });
     });
   } catch (error) {
-    console.error("Error starting server:", error);
+    logger.error("Error starting server:", error);
   }
 }
 

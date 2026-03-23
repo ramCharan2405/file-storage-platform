@@ -1,9 +1,10 @@
 import { ErrorRequestHandler } from "express";
 import { HTTPSTATUS } from "../config/http.config";
 import { AppError } from "../utils/app-error";
+import { logger } from "../utils/logger";
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
-  console.log(`Error occurred on PATH ${req.path}`, {
+  logger.error(`Error occurred on PATH ${req.path}`, {
     body: req.body,
     params: req.params,
     error,
