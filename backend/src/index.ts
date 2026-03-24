@@ -54,7 +54,7 @@ async function startServer() {
 
         try {
           server.close(() => {
-            logger.info("Server closed successfully.");
+            logger.info("HTTP Server closed successfully.");
           });
           await disconnectDatabase();
           process.exit(0);
