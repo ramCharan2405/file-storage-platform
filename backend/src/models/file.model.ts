@@ -79,3 +79,22 @@ const FileSchema = new Schema<FileDocument, FileModelType>(
     },
   },
 );
+
+FileSchema.statics.calculateUsage = async function (userId: Types.ObjectId): Promise<number> {
+  const result = await this.aggregate([
+    { $match: { userId } },
+    { $group: { _id: null, totalSize: { $sum: '$size' } } },
+  ]);
+  return result[0]?.totalSize || 0;
+};
+
+
+FileSchema.index({ userId: 1 });
+FileSchema.index({ createdAt: -1 });
+
+const FileModel = mongoose.model<FileDocument, FileModelType>(
+  'File',
+  FileSchema,
+);
+
+export default FileModel;
