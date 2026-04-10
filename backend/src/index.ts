@@ -9,6 +9,7 @@ import { asyncHandler } from "./middlewares/asyncHandler.middleware";
 import { logger } from "./utils/logger";
 
 import { connectDatabase, disconnectDatabase } from "./config/database.config";
+import internalRoutes from "./routes/internal";
 
 const app = express();
 const BASE_PATH = Env.BASE_PATH;
@@ -37,6 +38,8 @@ app.get(
     res.json({ message: "Welcome to the API" });
   })
 );
+
+app.use(`${BASE_PATH}`, internalRoutes);
 
 app.use(errorHandler);
 

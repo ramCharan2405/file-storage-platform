@@ -1,7 +1,7 @@
 
 const BYTE_UNITS=1024;
 
-export default function formatBytes(bytes: number, decimals = 2): string {
+export  function formatBytes(bytes: number, decimals = 2): string {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let i=0;
   while (bytes>=BYTE_UNITS && i<units.length-1) {
