@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
-import { RegisterSchemaType } from "../validators/auth.validator"
-import { AppError, UnauthorizedException } from "../utils/app-error";
+import { LoginSchemaType, RegisterSchemaType } from "../validators/auth.validator"
+import { AppError, NotFoundException, UnauthorizedException } from "../utils/app-error";
 
 import UserModel from "../models/user.model";
 import StorageModel from "../models/storage.model";
 import { logger } from "../utils/logger";
+import { sign } from "crypto";
+import { signJwtToken } from "../utils/jwt";
+import { access } from "fs";
 
 export const registerService=async (body: RegisterSchemaType)=>{
     const {email}=body;
@@ -23,7 +26,7 @@ export const registerService=async (body: RegisterSchemaType)=>{
             });
             await newUser.save({session});
             const storage = new StorageModel({
-                user: newUser._id,
+                userId: newUser._id,
                 files: [],
             });
             await storage.save({session});
@@ -37,3 +40,21 @@ export const registerService=async (body: RegisterSchemaType)=>{
         await session.endSession();
     }
 }
+
+export const loginService=async (body: LoginSchemaType) => {
+const {email,password}=body;
+const user=await UserModel.findOne({email});
+if(!user){
+    throw new NotFoundException('User not found');   
+}
+const isPasswordValid=await user.comparePassword(password);
+if(!isPasswordValid){
+    throw new UnauthorizedException('Invalid email or password');   
+}
+const {token,expiresAt}=signJwtToken({userId:user._id.toString()});
+return {
+    user: user.omitPassword(),
+    accessToken: token,
+    expiresAt,
+};
+};
