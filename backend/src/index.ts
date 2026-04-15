@@ -53,11 +53,11 @@ async function startServer() {
     const shutdownSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGQUIT"];
     shutdownSignals.forEach(signal => {
       process.on(signal, async () => {
-        logger.info(`Received ${signal}, shutting down gracefully...`);
+        logger.warn(`Received ${signal}, shutting down gracefully...`);
 
         try {
           server.close(() => {
-            logger.info("HTTP Server closed successfully.");
+            logger.warn("HTTP Server closed successfully.");
           });
           await disconnectDatabase();
           process.exit(0);
