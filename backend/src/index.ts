@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./config/passportconfig";
 import express, { Request, Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -10,6 +11,7 @@ import { logger } from "./utils/logger";
 
 import { connectDatabase, disconnectDatabase } from "./config/database.config";
 import internalRoutes from "./routes/internal";
+import passport from "passport";
 
 const app = express();
 const BASE_PATH = Env.BASE_PATH;
@@ -31,6 +33,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
+app.use(passport.initialize());
+
 
 app.get(
   "/",
